@@ -1,0 +1,87 @@
+<html>
+  <script type="text/javascript">
+
+  function makeHTTPRequest() {
+  	foods = document.getElementById('foodinput').value;
+  	parameters = makeUrlParameters(foods);
+	
+    var url = "../cgi-bin/recipe/recipe.py" + parameters;
+    var xmlhttp;
+    if(window.XMLHttpRequest) {
+      xmlhttp = new XMLHttpRequest();
+    } else {
+      xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+
+    xmlhttp.onreadystatechange = function() { 
+      if(xmlhttp.readyState==4 && xmlhttp.status==200) {
+        var output = xmlhttp.responseText;
+        // compensate for server-side errors
+        if (output=="") {
+          document.getElementById('recipe_name').innerHTML = "thinking harder...";
+          makeHTTPRequest();
+        } else {
+          document.getElementById('recipe_name').innerHTML = output;
+        }
+      }
+    }
+
+    xmlhttp.open("GET",url,true);
+    xmlhttp.send();
+  }
+
+
+  function getRecipeName() {
+ 	  document.getElementById('recipe_name').innerHTML = "thinking...";
+    makeHTTPRequest();
+  };
+   
+  function makeUrlParameters(foodstring) {
+	  params = "?";
+  	foodsarray = foodstring.split(" ");
+  	for(index=0; index<foodsarray.length; index++) {
+  		params += "food" + (index+1) + "=" + foodsarray[index] + "&";
+  	}
+  	return params;
+  }
+
+   function checkEnter(e) {
+	var charCode;
+	if(e && e.which) {	//NN
+		e=e;
+		charCode = e.which;
+	}
+	else {	// IE
+		e = event;
+		charCode = e.keyCode;
+	}
+	
+	if(charCode == 13) {
+		getRecipeName();
+		return false;
+	}
+	else {
+		return true;
+	}
+   }
+
+   </script>
+    
+<body>
+  <form>
+  
+  <div id='inputarea'>
+	  Enter some foods in the recipe, separated by spaces:
+	  <p>
+	  <input type='text' id='foodinput' onKeyPress="return checkEnter(event);" />
+	  <p>
+	  <input type='button' value='Generate' onClick='getRecipeName()' />
+  </div>
+  
+  <div id='recipe_name'>
+  </div>
+  
+  </form>
+
+</body>
+</html>
